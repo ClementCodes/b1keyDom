@@ -1,0 +1,12 @@
+# config\routes.yaml
+controllers:
+    resource: ../src/Controller/
+    type: annotation
+
+kernel:
+    resource: ../src/Kernel.php
+    type: annotation
+# c'est ici que l'on annonce le nom de la route qu'il faut utiliser pour
+api_login_check:
+    path: /api/login_check
+
