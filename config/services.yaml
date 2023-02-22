@@ -27,14 +27,4 @@ services:
                 event: preUpdate
                 entity: App\EntityListener\UserListener
                 
-                
 
-# config/validator/validation.yaml
-# App\Entity\User:
-#     constraints:
-#         - Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity: email
-#     properties:
-#         email:
-#             - Email: ~
-    # add more service definitions when explicit configuration is needed
-    # please note that last definitions always *replace* previous ones

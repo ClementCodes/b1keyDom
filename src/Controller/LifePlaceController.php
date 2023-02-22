@@ -68,7 +68,7 @@ class LifePlaceController extends AbstractController
         return new JsonResponse(null, Response::HTTP_NOT_FOUND);
     }
 
-    #[IsGranted('ROLE_USER', message: 'Il faut etre enregister pour créer son lieu de vie')]
+    // #[IsGranted('ROLE_USER', message: 'Il faut etre enregister pour créer son lieu de vie')]
     #[Route('/api/lifeplace/post', name: 'createPlace', methods: ['POST'])]
     public function createPlace(Request $request,  SerializerInterface $serializer, EntityManagerInterface $em, UrlGeneratorInterface $urlGenerator): JsonResponse
     {

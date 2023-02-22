@@ -80,7 +80,7 @@ class UserController extends AbstractController
     }
 
 
-    #[Route('/api/user/registration', name: 'createUser', methods: ['POST'])]
+    #[Route('/api/user/post', name: 'createUser', methods: ['POST'])]
     public function createPlace(Request $request,  SerializerInterface $serializer, EntityManagerInterface $em, UrlGeneratorInterface $urlGenerator): JsonResponse
     {
 
