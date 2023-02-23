@@ -20,6 +20,7 @@ use Symfony\Component\Serializer\SerializationContext;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 
@@ -69,6 +70,7 @@ class UserController extends AbstractController
 
 
 
+
     #[Route('/api/user', name: 'user_get', methods: ['GET'])]
     public function getPlace(UserRepository $UserRepository, SerializerInterface $serializer): JsonResponse
     {
@@ -80,16 +82,24 @@ class UserController extends AbstractController
     }
 
 
-    #[Route('/api/user/post', name: 'createUser', methods: ['POST'])]
-    public function createPlace(Request $request,  SerializerInterface $serializer, EntityManagerInterface $em, UrlGeneratorInterface $urlGenerator): JsonResponse
+    #[Route('/api/user/registration', name: 'createUser', methods: ['POST'])]
+    public function createPlace(Request $request,  SerializerInterface $serializer, EntityManagerInterface $em, UrlGeneratorInterface $urlGenerator, UserPasswordHasherInterface $passwordHasher): JsonResponse
     {
-
+        $user = new User();
+        $decoded = json_decode($request->getContent());
+        $plaintextPassword = $decoded->password;
+        $hashedPassword = $passwordHasher->hashPassword(
+            $user,
+            $plaintextPassword
+        );
 
         $user = $serializer->deserialize($request->getContent(), User::class, 'json');
 
 
+        $user->setPassword($hashedPassword);
         $em->persist($user);
         $em->flush();
+
         $jsonplace = $serializer->serialize($user, 'json', ['groups' => 'getUser']);
 
         $location =  $urlGenerator->generate('user_get', ['id' => $user->getId()], UrlGenerator::ABSOLUTE_URL);
@@ -98,7 +108,6 @@ class UserController extends AbstractController
             $jsonplace,
             Response::HTTP_CREATED,
             ["Location" => $location],
-
             true
         );
     }
