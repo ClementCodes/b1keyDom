@@ -19,7 +19,9 @@ use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Serializer\SerializationContext;
 use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
@@ -69,6 +71,21 @@ class UserController extends AbstractController
 
 
 
+    #[Route('/api/user/{email}/{password}', name: 'userSearch', methods: ['GET'])]
+    public function userSearch($email, $password,  UserRepository $userRepository, SerializerInterface $serializer, ManagerRegistry $doctrine): JsonResponse
+    {
+
+
+        // $place = $userRepository->find($id);
+        $place = $userRepository->findByExampleField($email, $password);
+
+
+        if ($place) {
+            $jsonplace = $serializer->serialize($place, 'json');
+            return new JsonResponse($jsonplace, Response::HTTP_OK, [], true);
+        }
+        return new JsonResponse(null, Response::HTTP_NOT_FOUND);
+    }
 
 
     #[Route('/api/user', name: 'user_get', methods: ['GET'])]
@@ -112,6 +129,24 @@ class UserController extends AbstractController
         );
     }
 
+
+    // #[Route('/api/books/{id}', name: "updateUser", methods: ['PUT'])]
+    // public function updateUser(Request $request, SerializerInterface $serializer, User $currentUser, EntityManagerInterface $em, UserRepository $userRepository): JsonResponse
+    // {
+    //     $updateUser = $serializer->deserialize(
+    //         $request->getContent(),
+    //         User::class,
+    //         'json',
+    //         [AbstractNormalizer::OBJECT_TO_POPULATE => $currentUser]
+    //     );
+    //     $content = $request->toArray();
+    //     $id = $content['id'] ?? -1;
+    //     $updateUser->setAuthor($userRepository->find($id));
+
+    //     $em->persist($updateUser);
+    //     $em->flush();
+    //     return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);
+    // }
 
 
     // /**
