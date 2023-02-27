@@ -186,7 +186,7 @@ class UserController extends AbstractController
 
 
 
-    #[Route('/user/edit/{id}/{idLife}', name: 'product_edit')]
+    #[Route('/api/user/edit/{id}/{idLife}', name: 'product_edit')]
     public function update(ManagerRegistry $doctrine, int $id, $idLife, UrlGeneratorInterface $urlGenerator): Response
     {
         $entityManager = $doctrine->getManager();
