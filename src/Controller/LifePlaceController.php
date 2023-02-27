@@ -48,7 +48,11 @@ class LifePlaceController extends AbstractController
 
         $placeOfLifeListe = $lifePlaceRepository->findAll();
 
-        $jsonplaceOfList = $serializer->serialize($placeOfLifeListe, 'json');
+        $jsonplaceOfList = $serializer->serialize(
+            $placeOfLifeListe,
+            'json',
+            ['groups' => 'getPlaces']
+        );
         return new JsonResponse($jsonplaceOfList, Response::HTTP_OK, [], true);
     }
 
@@ -62,11 +66,27 @@ class LifePlaceController extends AbstractController
 
 
         if ($place) {
-            $jsonplace = $serializer->serialize($place, 'json');
+            $jsonplace = $serializer->serialize(
+                $place,
+                'json',
+                ['groups' => 'getPlaces']
+            );
             return new JsonResponse($jsonplace, Response::HTTP_OK, [], true);
         }
         return new JsonResponse(null, Response::HTTP_NOT_FOUND);
     }
+
+    #[Route('/api/userlife/{id}', name: 'app_userLife2')]
+    public function showUserWithLife(ManagerRegistry $doctrine, int $id, LifePlaceRepository  $lifePlaceRepository): Response
+    {
+        $user =  $lifePlaceRepository->findOneByIdJoinedToLifePlace($id);
+
+        $life = $user->getUserLink();
+
+        return new Response('Saved new user with id ');
+    }
+
+
 
     // #[IsGranted('ROLE_USER', message: 'Il faut etre enregister pour créer son lieu de vie')]
     #[Route('/api/lifeplace/post', name: 'createPlace', methods: ['POST'])]

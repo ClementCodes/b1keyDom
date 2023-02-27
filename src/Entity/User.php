@@ -69,11 +69,11 @@ class User implements
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     private ?\DateTimeInterface $dateIn = null;
 
-
+    #[Groups(["getUser"])]
     #[ORM\Column(nullable: true)]
     private array $roles = ["ROLE_USER"];
 
-
+    #[Groups(["getUser"])]
     private ?string $plainPassword = null;
 
 
@@ -83,9 +83,10 @@ class User implements
     #[ORM\Column]
     private ?string $password = null;
 
-    #[Ignore]
+
+    #[Groups(["getUser"])]
     #[ORM\ManyToOne(inversedBy: 'userLink')]
-    private ?LifePlace $lifePlace = null;
+    public ?LifePlace $lifePlace = null;
 
     public function __construct()
     {
@@ -284,7 +285,7 @@ class User implements
     }
 
 
-    #[Ignore]
+
     public function getLife(): ?LifePlace
     {
         return $this->lifePlace;

@@ -74,6 +74,26 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
             ->getResult();
     }
 
+
+    /**
+     * @return User[] Returns an array of User objects
+     */
+    public function integrationOfLife($id, $value): array
+    {
+
+        $entityManager = $this->getDoctrine()->getManager();
+        return $query = $entityManager->createQueryBuilder()
+            ->update('App\Entity\User', 'u')
+            ->set('u.lifeplaceid', ':new_value')
+            ->where('u.id = :id')
+            ->setParameter('id', $id)
+            ->setParameter('new_value', $value)
+            ->getQuery();
+
+        $query->execute();
+    }
+
+
     //    public function findOneBySomeField($value): ?User
     //    {
     //        return $this->createQueryBuilder('u')

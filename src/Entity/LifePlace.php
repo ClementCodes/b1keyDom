@@ -40,7 +40,7 @@ class LifePlace
     #[Groups(["getPlaces"])]
     private ?int $rooms = null;
 
-
+    #[Groups(["getPlaces"])]
     #[ORM\OneToMany(mappedBy: 'lifePlace', targetEntity: User::class)]
     private Collection $userLink;
 
@@ -48,12 +48,6 @@ class LifePlace
     {
         $this->userLink = new ArrayCollection();
     }
-
-
-
-
-
-
 
 
     public function getId(): ?int

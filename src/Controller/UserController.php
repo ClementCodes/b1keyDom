@@ -8,6 +8,7 @@ use App\Entity\LifePlace;
 
 use App\Repository\UserRepository;
 use App\Controller\LifePlaceController;
+use App\Repository\LifePlaceRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\Request;
@@ -69,10 +70,51 @@ class UserController extends AbstractController
         return new Response('Saved new user with id ' . $user->getId());
     }
 
+    #[Route('/api/user/{id}', name: 'detailUser', methods: ['GET'])]
+    public function getPlaceById(int $id, UserRepository $userRepository, SerializerInterface $serializer): JsonResponse
+    {
+
+        $user = $userRepository->find($id);
+
+        $categoryName = $user->getName();
+        $categoryLife = $user->getLife();
+
+
+        if ($user) {
+            $jsonplace = $serializer->serialize(
+                [$user, $categoryName, $categoryLife],
+                'json',
+                ['groups' => 'getUser']
+            );
+            return new JsonResponse($jsonplace, Response::HTTP_OK, [], true);
+        }
+        return new JsonResponse(null, Response::HTTP_NOT_FOUND);
+    }
+
+    #[Route('/api/receipeidlifebyuser/{id}', name: 'detailLifeUser', methods: ['GET'])]
+    public function showLifePlace(int $id, UserRepository $userRepository, SerializerInterface $serializer): JsonResponse
+    {
+
+        $lifePlace = $userRepository->find($id);
+
+
+
+
+
+        if ($lifePlace) {
+            $jsonplace = $serializer->serialize(
+                $lifePlace,
+                'json',
+                ['groups' => 'getUser']
+            );
+            return new JsonResponse($jsonplace, Response::HTTP_OK, [], true);
+        }
+        return new JsonResponse(null, Response::HTTP_NOT_FOUND);
+    }
 
 
     #[Route('/api/user/{email}/{password}', name: 'userSearch', methods: ['GET'])]
-    public function userSearch($email, $password,  UserRepository $userRepository, SerializerInterface $serializer, ManagerRegistry $doctrine): JsonResponse
+    public function userSearch($email, $password,  UserRepository $userRepository, SerializerInterface $serializer): JsonResponse
     {
 
 
@@ -81,7 +123,11 @@ class UserController extends AbstractController
 
 
         if ($place) {
-            $jsonplace = $serializer->serialize($place, 'json');
+            $jsonplace = $serializer->serialize(
+                $place,
+                'json',
+                ['groups' => 'getUser']
+            );
             return new JsonResponse($jsonplace, Response::HTTP_OK, [], true);
         }
         return new JsonResponse(null, Response::HTTP_NOT_FOUND);
@@ -94,7 +140,11 @@ class UserController extends AbstractController
 
         $user = $UserRepository->findAll();
 
-        $jsonplaceOfList = $serializer->serialize($user, 'json');
+        $jsonplaceOfList = $serializer->serialize(
+            $user,
+            'json',
+            ['groups' => 'getUser']
+        );
         return new JsonResponse($jsonplaceOfList, Response::HTTP_OK, [], true);
     }
 
@@ -117,7 +167,11 @@ class UserController extends AbstractController
         $em->persist($user);
         $em->flush();
 
-        $jsonplace = $serializer->serialize($user, 'json', ['groups' => 'getUser']);
+        $jsonplace = $serializer->serialize(
+            $user,
+            'json',
+            ['groups' => 'getUser']
+        );
 
         $location =  $urlGenerator->generate('user_get', ['id' => $user->getId()], UrlGenerator::ABSOLUTE_URL);
 
@@ -130,23 +184,38 @@ class UserController extends AbstractController
     }
 
 
-    // #[Route('/api/books/{id}', name: "updateUser", methods: ['PUT'])]
-    // public function updateUser(Request $request, SerializerInterface $serializer, User $currentUser, EntityManagerInterface $em, UserRepository $userRepository): JsonResponse
-    // {
-    //     $updateUser = $serializer->deserialize(
-    //         $request->getContent(),
-    //         User::class,
-    //         'json',
-    //         [AbstractNormalizer::OBJECT_TO_POPULATE => $currentUser]
-    //     );
-    //     $content = $request->toArray();
-    //     $id = $content['id'] ?? -1;
-    //     $updateUser->setAuthor($userRepository->find($id));
 
-    //     $em->persist($updateUser);
-    //     $em->flush();
-    //     return new JsonResponse(null, JsonResponse::HTTP_NO_CONTENT);
-    // }
+
+    #[Route('/user/edit/{id}/{idLife}', name: 'product_edit')]
+    public function update(ManagerRegistry $doctrine, int $id, $idLife, UrlGeneratorInterface $urlGenerator): Response
+    {
+        $entityManager = $doctrine->getManager();
+        $user = $entityManager->getRepository(User::class)->find($id);
+
+        if (!$user) {
+            throw $this->createNotFoundException(
+                'No user found for id ' . $id
+            );
+        }
+
+        $entityManagerLife = $doctrine->getManager();
+        $life = $entityManagerLife->getRepository(LifePlace::class)->find($idLife);
+        // dd($life);
+
+        $mettre =  $user->setLife($life);
+        $entityManager->persist($mettre);
+        $entityManager->flush();
+
+        $location =  $urlGenerator->generate('user_get', ['id' => $user->getId()], UrlGenerator::ABSOLUTE_URL);
+
+        return new JsonResponse(
+            $user,
+            Response::HTTP_CREATED,
+            ["Location" => $location],
+            false
+        );
+    }
+}
 
 
     // /**
@@ -178,4 +247,3 @@ class UserController extends AbstractController
 
     //     return new JsonResponse(['token' => $token], Response::HTTP_OK);
     // }
-}

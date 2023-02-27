@@ -58,6 +58,24 @@ class LifePlaceRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+
+    /**
+     * @return LifePlace 
+     */
+    public function findOneByIdJoinedToLifePlace(int $lifeId): ?LifePlace
+    {
+        $entityManager = $this->getEntityManager();
+
+        $query = $entityManager->createQuery(
+            'SELECT l, u
+            FROM App\Entity\LifePlace l
+            INNER JOIN l.user u
+            WHERE l.id = :id'
+        )->setParameter('id', $lifeId);
+
+        return $query->getOneOrNullResult();
+    }
+
     //    public function findOneBySomeField($value): ?LifePlace
     //    {
     //        return $this->createQueryBuilder('l')
