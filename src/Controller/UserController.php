@@ -94,11 +94,7 @@ class UserController extends AbstractController
     #[Route('/api/receipeidlifebyuser/{id}', name: 'detailLifeUser', methods: ['GET'])]
     public function showLifePlace(int $id, UserRepository $userRepository, SerializerInterface $serializer): JsonResponse
     {
-
         $lifePlace = $userRepository->find($id);
-
-
-
 
 
         if ($lifePlace) {
@@ -118,7 +114,6 @@ class UserController extends AbstractController
     {
 
 
-        // $place = $userRepository->find($id);
         $place = $userRepository->findByExampleField($email, $password);
 
 
